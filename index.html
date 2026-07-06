@@ -3,7 +3,2329 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>itpetest</title>
+    <title>정보관리 기술사 기출 투표</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f5f1;
+        --panel: #ffffff;
+        --panel-soft: #fbfaf7;
+        --line: #e8e4df;
+        --line-soft: #f0ede8;
+        --text: #1c1a17;
+        --muted: #9b9590;
+        --muted-2: #6b6560;
+        --accent: #4c6ef5;
+        --blue: #4c6ef5;
+        --blue-soft: #eef2ff;
+        --blue-ink: #4338ca;
+        --gray-soft: #f0ede8;
+        --shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+
+        --crit-bg: #fef2f2;
+        --crit-fg: #b91c1c;
+        --crit-bd: #fca5a5;
+        --crit-dot: #ef4444;
+        --norm-bg: #fffbeb;
+        --norm-fg: #b45309;
+        --norm-bd: #fcd34d;
+        --norm-dot: #f59e0b;
+        --none-bg: #f3f4f6;
+        --none-fg: #374151;
+        --none-bd: #d1d5db;
+        --none-dot: #9ca3af;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          "Noto Sans KR",
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      ::-webkit-scrollbar {
+        width: 9px;
+        height: 9px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #d5d0ca;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      /* ── header ───────────────────────────── */
+      .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        height: 56px;
+        padding: 0 24px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .brand-logo {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .brand-name {
+        font-weight: 700;
+        font-size: 15px;
+        white-space: nowrap;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 2px;
+        padding: 3px;
+        margin-left: 6px;
+        background: var(--gray-soft);
+        border-radius: 9px;
+      }
+
+      .tab {
+        border: 0;
+        border-radius: 6px;
+        padding: 6px 15px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted-2);
+        background: none;
+        cursor: pointer;
+        transition: all 0.12s;
+      }
+
+      .tab.active {
+        color: var(--text);
+        font-weight: 600;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+      }
+
+      .header-right {
+        margin-left: auto;
+      }
+
+      .voter-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 8px 4px 5px;
+        background: var(--gray-soft);
+        border-radius: 99px;
+      }
+
+      .voter-initial {
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .voter-select {
+        border: 0;
+        background: none;
+        color: var(--text);
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 2px 2px;
+      }
+
+      /* ── layout ───────────────────────────── */
+      .app {
+        padding: 0;
+      }
+
+      .page[hidden] {
+        display: none;
+      }
+
+      .page-inner {
+        margin: 0 auto;
+        padding: 26px 24px 48px;
+      }
+
+      .vote-inner {
+        max-width: 900px;
+      }
+
+      .solutions-inner {
+        max-width: 1180px;
+      }
+
+      .hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      h1 {
+        margin: 0 0 5px;
+        font-size: 23px;
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      /* ── stats ────────────────────────────── */
+      .stats {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+        flex-wrap: wrap;
+      }
+
+      .stat {
+        min-width: 82px;
+        padding: 11px 13px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 11px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 3px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .stat.crit {
+        background: var(--crit-bg);
+        border-color: var(--crit-bd);
+      }
+      .stat.crit strong,
+      .stat.crit span {
+        color: var(--crit-fg);
+      }
+      .stat.norm {
+        background: var(--norm-bg);
+        border-color: var(--norm-bd);
+      }
+      .stat.norm strong,
+      .stat.norm span {
+        color: var(--norm-fg);
+      }
+      .stat.none {
+        background: var(--none-bg);
+        border-color: var(--none-bd);
+      }
+      .stat.none strong {
+        color: var(--none-fg);
+      }
+      .stat.none span {
+        color: #6b7280;
+      }
+
+      /* ── control bar ──────────────────────── */
+      .control-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .ctrl-select {
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 8px;
+        border: 1px solid #e2ddd8;
+        background: var(--bg);
+        color: #3d3a36;
+        font-size: 12.5px;
+      }
+
+      .seg-group {
+        display: flex;
+        gap: 3px;
+        padding: 3px;
+        background: var(--gray-soft);
+        border-radius: 8px;
+      }
+
+      .seg {
+        border: 0;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted-2);
+        background: none;
+        cursor: pointer;
+        transition: all 0.12s;
+      }
+
+      .seg.active {
+        color: var(--text);
+        font-weight: 600;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+      }
+
+      .ctrl-divider {
+        width: 1px;
+        height: 22px;
+        background: var(--line);
+      }
+
+      .chip-group {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+
+      .chip {
+        border: 1px solid transparent;
+        border-radius: 99px;
+        padding: 5px 11px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted-2);
+        background: var(--gray-soft);
+        cursor: pointer;
+        transition: all 0.12s;
+      }
+
+      .chip.active {
+        font-weight: 600;
+        background: var(--blue-soft);
+        color: var(--blue-ink);
+        border-color: #c7d2fe;
+      }
+      .chip.active.crit {
+        background: var(--crit-bg);
+        color: var(--crit-fg);
+        border-color: var(--crit-bd);
+      }
+      .chip.active.norm {
+        background: var(--norm-bg);
+        color: var(--norm-fg);
+        border-color: var(--norm-bd);
+      }
+      .chip.active.none {
+        background: var(--none-bg);
+        color: var(--none-fg);
+        border-color: var(--none-bd);
+      }
+
+      .search-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 150px;
+      }
+
+      .search-wrap input {
+        width: 100%;
+        height: 34px;
+        padding: 0 12px 0 30px;
+        border-radius: 8px;
+        border: 1px solid #e2ddd8;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 12.5px;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        color: #b0aaa4;
+        pointer-events: none;
+      }
+
+      .ctrl-actions {
+        display: flex;
+        gap: 7px;
+      }
+
+      .ctrl-btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #3d3a36;
+        background: var(--gray-soft);
+        cursor: pointer;
+        transition: background 0.12s;
+      }
+
+      .ctrl-btn:hover {
+        background: #e8e4df;
+      }
+
+      /* ── list meta ────────────────────────── */
+      .list-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 0 2px;
+        font-size: 12.5px;
+        color: var(--muted-2);
+      }
+
+      .list-meta b {
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .reset-btn {
+        margin-left: auto;
+        border: 0;
+        border-radius: 8px;
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted-2);
+        background: var(--gray-soft);
+        cursor: pointer;
+        transition: all 0.12s;
+      }
+
+      .reset-btn:hover {
+        background: #e8e4df;
+      }
+
+      /* ── question table (vote) ────────────── */
+      .q-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .q-thead {
+        display: grid;
+        grid-template-columns: 96px 48px 1fr 246px;
+        gap: 12px;
+        padding: 11px 18px;
+        background: var(--panel-soft);
+        border-bottom: 1px solid var(--line);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+
+      .q-thead .ta-c {
+        text-align: center;
+      }
+
+      .round-head {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 18px;
+        background: #fdfcfa;
+        border-bottom: 1px solid var(--line-soft);
+      }
+
+      .round-head-title {
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .round-head-count {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .q-row {
+        display: grid;
+        grid-template-columns: 96px 48px 1fr 246px;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--line-soft);
+      }
+
+      .q-col {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--blue-ink);
+      }
+
+      .q-no {
+        font-size: 12px;
+        color: #b0aaa4;
+      }
+
+      .q-title {
+        font-size: 13.5px;
+        font-weight: 500;
+        line-height: 1.45;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
+      }
+
+      .q-vote {
+        display: grid;
+        gap: 6px;
+        justify-items: stretch;
+      }
+
+      .seg-vote {
+        display: flex;
+        border: 1px solid #e2ddd8;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .sv {
+        flex: 1;
+        border: 0;
+        padding: 7px 0;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted);
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.12s;
+      }
+
+      .sv + .sv {
+        border-left: 1px solid #e2ddd8;
+      }
+
+      .sv.crit.on {
+        background: var(--crit-bg);
+        color: var(--crit-fg);
+        font-weight: 600;
+      }
+      .sv.norm.on {
+        background: var(--norm-bg);
+        color: var(--norm-fg);
+        font-weight: 600;
+      }
+      .sv.none.on {
+        background: var(--none-bg);
+        color: var(--none-fg);
+        font-weight: 600;
+      }
+
+      .q-voters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        min-height: 0;
+      }
+
+      .vtag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 1px 7px;
+        border-radius: 99px;
+        font-size: 10.5px;
+        font-weight: 600;
+        border: 1px solid transparent;
+      }
+
+      .vtag::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .vtag.critical {
+        background: var(--crit-bg);
+        color: var(--crit-fg);
+        border-color: var(--crit-bd);
+      }
+      .vtag.critical::before {
+        background: var(--crit-dot);
+      }
+      .vtag.normal {
+        background: var(--norm-bg);
+        color: var(--norm-fg);
+        border-color: var(--norm-bd);
+      }
+      .vtag.normal::before {
+        background: var(--norm-dot);
+      }
+      .vtag.none {
+        background: var(--none-bg);
+        color: var(--none-fg);
+        border-color: var(--none-bd);
+      }
+      .vtag.none::before {
+        background: var(--none-dot);
+      }
+
+      .empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 64px 20px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: var(--muted);
+      }
+
+      .empty .emoji {
+        font-size: 38px;
+        opacity: 0.4;
+      }
+
+      .empty strong {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--muted-2);
+      }
+
+      .empty span {
+        font-size: 13px;
+      }
+
+      /* ── entry gate ───────────────────────── */
+      .gate {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: var(--bg);
+      }
+
+      .gate[hidden] {
+        display: none;
+      }
+
+      .gate-panel {
+        width: min(412px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        text-align: center;
+      }
+
+      .gate-logo {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 16px;
+        border-radius: 14px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 24px;
+        font-weight: 800;
+        box-shadow: 0 8px 20px rgba(76, 110, 245, 0.28);
+      }
+
+      .gate-panel h2 {
+        margin: 0 0 6px;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+
+      .gate-panel p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 13.5px;
+        line-height: 1.55;
+      }
+
+      .gate-names {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .gate-names .action {
+        min-height: 44px;
+        border: 1px solid #e2ddd8;
+        border-radius: 10px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.12s;
+      }
+
+      .gate-names .action:hover {
+        border-color: var(--accent);
+        background: var(--blue-soft);
+        color: var(--blue-ink);
+      }
+
+      .gate-legend {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line-soft);
+        font-size: 12px;
+        color: var(--muted-2);
+      }
+
+      .gate-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .gate-legend i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+      }
+      .gate-legend i.crit {
+        background: var(--crit-dot);
+      }
+      .gate-legend i.norm {
+        background: var(--norm-dot);
+      }
+      .gate-legend i.none {
+        background: var(--none-dot);
+      }
+
+      /* ── solutions: PDF viewer ────────────── */
+      .sol-head {
+        margin-bottom: 18px;
+      }
+
+      .viewer-layout {
+        display: grid;
+        grid-template-columns: 264px minmax(0, 1fr);
+        gap: 14px;
+        min-height: calc(100vh - 190px);
+      }
+
+      .viewer-layout.nav-collapsed {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .viewer-layout.nav-collapsed .solution-nav-panel {
+        display: none;
+      }
+
+      .solution-nav-panel,
+      .viewer-panel {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .solution-nav-panel {
+        align-self: start;
+        position: sticky;
+        top: 70px;
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        max-height: calc(100vh - 90px);
+        overflow: auto;
+      }
+
+      .solution-nav-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+      }
+
+      /* accordion nav */
+      .solution-nav-list {
+        display: grid;
+        gap: 4px;
+      }
+
+      .nav-round-group {
+        display: grid;
+        gap: 4px;
+      }
+
+      .round-button {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 40px;
+        padding: 0 12px;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: none;
+        color: var(--text);
+        cursor: pointer;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13.5px;
+        transition: all 0.12s;
+      }
+
+      .round-button:hover {
+        background: var(--panel-soft);
+      }
+
+      .round-button.active {
+        border-color: #c7d2fe;
+        background: var(--blue-soft);
+        color: var(--blue-ink);
+      }
+
+      .round-caret {
+        font-size: 10px;
+        color: var(--muted);
+        transition: transform 0.15s;
+      }
+
+      .round-button.expanded .round-caret {
+        transform: rotate(90deg);
+      }
+
+      .round-name {
+        flex: 1;
+      }
+
+      .round-count {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        background: var(--gray-soft);
+        padding: 1px 8px;
+        border-radius: 99px;
+      }
+
+      .round-button.active .round-count {
+        background: #fff;
+        color: var(--blue-ink);
+      }
+
+      .file-sublist {
+        display: grid;
+        gap: 4px;
+        padding: 2px 0 6px 12px;
+        border-left: 1px solid var(--line-soft);
+        margin-left: 15px;
+      }
+
+      .file-button {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 11px;
+        background: #fff;
+        color: var(--text);
+        cursor: pointer;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.4;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
+      }
+
+      .file-button:hover {
+        border-color: #d5d0ca;
+      }
+
+      .file-button.active {
+        border-color: var(--accent);
+        color: var(--blue-ink);
+        background: var(--blue-soft);
+        font-weight: 600;
+      }
+
+      .file-empty {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 6px 10px;
+      }
+
+      .viewer-panel {
+        display: grid;
+        grid-template-rows: auto minmax(520px, 1fr) auto;
+        overflow: hidden;
+      }
+
+      .viewer-toolbar {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .viewer-title {
+        min-width: 0;
+      }
+
+      .viewer-title h2 {
+        margin: 0 0 4px;
+        font-size: 15px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+      }
+
+      .viewer-title p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .viewer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .viewer-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .viewer-action {
+        min-height: 36px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 10px;
+        color: var(--text);
+        background: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12.5px;
+      }
+
+      .viewer-action.active {
+        border-color: var(--accent);
+        color: var(--blue-ink);
+        background: var(--blue-soft);
+      }
+
+      .viewer-action:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .page-status {
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .pdf-stage {
+        position: relative;
+        min-height: 520px;
+        max-height: calc(100vh - 300px);
+        overflow: auto;
+        background: #ece8e2;
+        scroll-behavior: smooth;
+      }
+
+      .pdf-empty {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 30px;
+        color: var(--muted);
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .pdf-grid {
+        position: relative;
+        min-height: 100%;
+        display: grid;
+        align-items: start;
+        gap: 12px;
+        padding: 12px;
+      }
+
+      .pdf-grid.single {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .pdf-grid.double {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .pdf-frame-wrap {
+        position: relative;
+        min-width: 0;
+        display: grid;
+        place-items: center;
+        overflow: visible;
+        border: 1px solid rgba(28, 26, 23, 0.14);
+        border-radius: 8px;
+        background: #fff;
+        padding: 10px;
+      }
+
+      .pdf-canvas {
+        display: block;
+        max-width: 100%;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(28, 26, 23, 0.16);
+      }
+
+      .pdf-loading {
+        min-height: 220px;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        color: var(--muted);
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .pdf-page-label {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 3;
+        border-radius: 6px;
+        padding: 3px 8px;
+        background: rgba(28, 26, 23, 0.76);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .highlight-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .highlight-layer.enabled {
+        cursor: crosshair;
+        pointer-events: auto;
+      }
+
+      .highlight-box {
+        position: absolute;
+        border: 1px solid rgba(255, 190, 0, 0.85);
+        background: rgba(255, 224, 86, 0.36);
+      }
+
+      .viewer-note {
+        padding: 8px 12px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        background: var(--panel-soft);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .pdf-mini-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-top: 1px solid var(--line);
+        background: rgba(251, 250, 247, 0.98);
+      }
+
+      .mini-action,
+      .mini-select {
+        min-height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 0 9px;
+        color: var(--text);
+        background: #fff;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .mini-action {
+        cursor: pointer;
+      }
+
+      .mini-action:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .mini-page-input {
+        width: 58px;
+        min-height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      /* ── responsive ───────────────────────── */
+      @media (max-width: 860px) {
+        .app-header {
+          flex-wrap: wrap;
+          height: auto;
+          padding: 10px 16px;
+          gap: 10px;
+        }
+
+        .tabs {
+          order: 3;
+          width: 100%;
+          margin-left: 0;
+        }
+
+        .tab {
+          flex: 1;
+        }
+
+        .header-right {
+          margin-left: auto;
+        }
+
+        .page-inner {
+          padding: 20px 16px 40px;
+        }
+
+        .hero {
+          align-items: flex-start;
+        }
+
+        .stats {
+          width: 100%;
+        }
+
+        .stat {
+          flex: 1;
+        }
+
+        .q-thead {
+          display: none;
+        }
+
+        .q-row {
+          grid-template-columns: 1fr;
+          gap: 8px;
+          align-items: stretch;
+        }
+
+        .q-col,
+        .q-no {
+          display: inline;
+        }
+
+        .viewer-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .solution-nav-panel {
+          position: static;
+          max-height: none;
+        }
+
+        .viewer-toolbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .viewer-actions {
+          justify-content: flex-start;
+        }
+
+        .pdf-stage {
+          max-height: calc(100vh - 340px);
+        }
+
+        .pdf-grid.double {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .pdf-mini-toolbar {
+          justify-content: flex-start;
+          overflow-x: auto;
+        }
+      }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <section class="gate" id="entryGate" aria-label="입장">
+      <div class="gate-panel">
+        <div class="gate-logo">표</div>
+        <h2>정보관리 기술사 기출 투표</h2>
+        <p>투표할 이름을 선택하고 입장하세요.</p>
+        <div class="gate-names" id="entryNames"></div>
+        <div class="gate-legend">
+          <span><i class="crit"></i>매우중요</span>
+          <span><i class="norm"></i>보통</span>
+          <span><i class="none"></i>필요없음</span>
+        </div>
+      </div>
+    </section>
+
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">표</div>
+        <span class="brand-name">정보관리 기술사</span>
+      </div>
+      <nav class="tabs" aria-label="주요 기능">
+        <button class="tab active" id="votePageTab" type="button" data-page="vote">기출 투표</button>
+        <button class="tab" id="solutionPageTab" type="button" data-page="solutions">기출 풀이집</button>
+      </nav>
+      <div class="header-right">
+        <div class="voter-chip">
+          <span class="voter-initial" id="voterInitial">·</span>
+          <select id="voterName" class="voter-select" aria-label="투표자"></select>
+        </div>
+      </div>
+    </header>
+
+    <main class="app">
+      <section class="page" id="votePage">
+        <div class="page-inner vote-inner">
+          <div class="hero">
+            <div>
+              <h1>기출 투표</h1>
+              <p class="subtitle">회차와 교시를 고르고 각 문항의 중요도를 3단계로 표시하세요.</p>
+            </div>
+            <div class="stats" aria-label="투표 현황">
+              <div class="stat"><strong id="totalCount">0</strong><span>전체 문항</span></div>
+              <div class="stat crit"><strong id="criticalCount">0</strong><span>매우중요</span></div>
+              <div class="stat norm"><strong id="normalCount">0</strong><span>보통</span></div>
+              <div class="stat none"><strong id="noneCount">0</strong><span>필요없음</span></div>
+            </div>
+          </div>
+
+          <div class="control-bar" aria-label="목록 필터">
+            <select id="roundSelect" class="ctrl-select" aria-label="회차"></select>
+            <div class="seg-group" id="periodTabs"></div>
+            <div class="ctrl-divider"></div>
+            <div class="chip-group" id="statusChips"></div>
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span>
+              <input id="searchInput" type="search" placeholder="문제·키워드 검색" />
+            </div>
+            <div class="ctrl-actions">
+              <button class="ctrl-btn" id="clearVisible" type="button">목록 투표 초기화</button>
+              <button class="ctrl-btn" id="exportJson" type="button">JSON</button>
+              <button class="ctrl-btn" id="exportCsv" type="button">CSV</button>
+            </div>
+          </div>
+
+          <div class="list-meta">
+            <div><b id="filteredCount">0</b>개 문항</div>
+            <button class="reset-btn" id="resetFilters" type="button">필터 초기화</button>
+          </div>
+
+          <div id="questionList"></div>
+        </div>
+      </section>
+
+      <section class="page" id="solutionsPage" hidden>
+        <div class="page-inner solutions-inner">
+          <header class="sol-head">
+            <h1>기출 풀이집</h1>
+            <p class="subtitle">왼쪽에서 회차를 눌러 PDF 파일을 고르면 오른쪽 뷰어에 열립니다. 하이라이트는 원본 PDF를 수정하지 않는 화면 오버레이입니다.</p>
+          </header>
+
+          <section class="viewer-layout" id="viewerLayout" aria-label="기출풀이집 PDF 뷰어">
+            <aside class="solution-nav-panel" id="solutionNavPanel">
+              <div class="solution-nav-head">
+                <h2 class="panel-title" id="solutionNavTitle">회차별 풀이집</h2>
+              </div>
+              <div class="solution-nav-list" id="solutionNavList"></div>
+            </aside>
+
+            <section class="viewer-panel">
+              <div class="viewer-toolbar">
+                <div class="viewer-title">
+                  <h2 id="pdfTitle">PDF 파일을 선택하세요</h2>
+                  <p id="pdfMeta">왼쪽에서 회차와 파일을 선택하면 뷰어가 열립니다.</p>
+                </div>
+                <div class="viewer-actions">
+                  <div class="viewer-group">
+                    <button class="viewer-action" id="toggleNavButton" type="button">목록 숨기기</button>
+                    <button class="viewer-action active" id="singlePageButton" type="button">1페이지</button>
+                    <button class="viewer-action" id="doublePageButton" type="button">2페이지</button>
+                  </div>
+                  <div class="viewer-group">
+                    <button class="viewer-action" id="highlightToggle" type="button">하이라이트</button>
+                    <button class="viewer-action" id="clearHighlights" type="button">하이라이트 삭제</button>
+                    <a class="viewer-action" id="openPdfLink" href="#" target="_blank" rel="noreferrer">새 창</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pdf-stage" id="pdfStage">
+                <div class="pdf-empty" id="pdfEmpty">PDF 파일을 선택하세요.</div>
+                <div class="pdf-grid single" id="pdfGrid" hidden></div>
+              </div>
+              <div class="pdf-mini-toolbar" id="pdfMiniToolbar">
+                <button class="mini-action" id="firstPageButton" type="button">처음</button>
+                <button class="mini-action" id="prevPageButton" type="button">이전</button>
+                <input class="mini-page-input" id="pdfPageInput" type="number" min="1" value="1" aria-label="PDF 페이지" />
+                <span class="page-status" id="pdfPageStatus">/ -</span>
+                <button class="mini-action" id="nextPageButton" type="button">다음</button>
+                <button class="mini-action" id="lastPageButton" type="button">마지막</button>
+                <select class="mini-select" id="pdfZoomSelect" aria-label="확대축소">
+                  <option value="fit">맞춤</option>
+                  <option value="1">100%</option>
+                  <option value="1.25">125%</option>
+                  <option value="1.5">150%</option>
+                </select>
+              </div>
+              <div class="viewer-note">
+                하이라이트는 브라우저에 저장되는 오버레이입니다. 원본 PDF는 수정되지 않습니다.
+              </div>
+            </section>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs";
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+      window.pdfjsLib = pdfjsLib;
+      window.dispatchEvent(new Event("pdfjs-ready"));
+    </script>
+    <script src="questions-data.js"></script>
+    <script>
+      const questions = window.ITPE_QUESTIONS || [];
+      const storageKey = "itpe-votes-v1";
+      const nameKey = "itpe-voter-name-v1";
+      const votesApi = "/api/votes";
+      const voters = ["호영", "세희", "원정"];
+      const localPdfHost = ["localhost", "127.0.0.1", ""].includes(location.hostname);
+      const pdfBaseUrl = window.ITPE_PDF_BASE_URL || "";
+      const solutionRounds = Array.from({ length: 15 }, (_, index) => 125 + index);
+      const pdfFiles = [
+        { round: 126, name: "[아이리포] 제126회 기출문제해설-관리 1교시(20220129)_최종.pdf" },
+        { round: 126, name: "[아이리포] 제126회 기출문제해설-관리 2교시(20220129)_최종.pdf" },
+        { round: 126, name: "[아이리포] 제126회 기출문제해설-관리 3교시(20220129)_최종.pdf" },
+        { round: 126, name: "[아이리포] 제126회 기출문제해설-관리 4교시(20220129)_최종.pdf" },
+        { round: 127, name: "[아이리포]+제127회+정보관리기술사+기출문제+해설집.pdf" },
+        { round: 128, name: "[아이리포]+정보관리기술사+기출풀이집-128회_통합본_최종.pdf" },
+        { round: 129, name: "[아이리포] 정보관리기술사 기출풀이집-129회(230204).pdf" },
+        { round: 130, name: "[아이리포] 정보관리기술사 기출풀이집-130회.pdf" },
+        { round: 131, name: "[아이리포] 정보관리기술사 기출풀이집-131회.pdf" },
+        { round: 132, name: "[아이리포] 정보관리기술사 기출풀이집-132회.pdf" },
+        { round: 133, name: "[아이리포] 정보관리기술사 기출풀이집-133회.pdf" },
+        { round: 134, name: "[아이리포] 정보관리기술사 기출풀이집-134회.pdf" },
+        { round: 135, name: "[아이리포] 정보관리 기출풀이집-135회.pdf" },
+        { round: 136, name: "[아이리포] 정보관리기술사 기출풀이집-136회(250517)_최종_2.0.pdf" },
+        { round: 137, name: "137회.pdf" },
+        { round: 138, name: "[BigUp]기술사_138회_정보관리_260207_v1.0.pdf" },
+        { round: 139, name: "[인포레버] 제139회_정보관리기술사 기출해설집_260522_v1.0.pdf" },
+      ];
+      const highlightKey = "itpe-pdf-highlights-v1";
+      const labels = {
+        critical: "매우중요",
+        normal: "보통",
+        none: "필요없음",
+      };
+      const statusFilters = [
+        { value: "all", label: "전체", kind: "" },
+        { value: "unvoted", label: "미투표", kind: "" },
+        { value: "critical", label: "매우중요", kind: "crit" },
+        { value: "normal", label: "보통", kind: "norm" },
+        { value: "none", label: "필요없음", kind: "none" },
+      ];
+      const periodOptions = [
+        { value: "all", label: "전체" },
+        { value: 1, label: "1교시" },
+        { value: 2, label: "2교시" },
+        { value: 3, label: "3교시" },
+        { value: 4, label: "4교시" },
+      ];
+      const state = {
+        round: "all",
+        period: "all",
+        filter: "all",
+        search: "",
+        votes: loadCachedVotes(),
+        voter: "",
+        online: false,
+        appPage: new URLSearchParams(location.search).get("page") === "solutions" ? "solutions" : "vote",
+        solutionRound: 139,
+        solutionFile: "",
+        solExpandedRound: 139,
+        solutionNavCollapsed: false,
+        pdfView: "single",
+        pdfPage: 1,
+        pdfVisiblePage: 1,
+        pdfZoom: "fit",
+        pdfTotalPages: 0,
+        pdfDoc: null,
+        pdfDocFile: "",
+        pdfRenderToken: 0,
+        pdfPageObserver: null,
+        highlightMode: false,
+        highlights: loadHighlights(),
+      };
+
+      const els = {
+        votePageTab: document.querySelector("#votePageTab"),
+        solutionPageTab: document.querySelector("#solutionPageTab"),
+        votePage: document.querySelector("#votePage"),
+        solutionsPage: document.querySelector("#solutionsPage"),
+        entryGate: document.querySelector("#entryGate"),
+        entryNames: document.querySelector("#entryNames"),
+        viewerLayout: document.querySelector("#viewerLayout"),
+        solutionNavTitle: document.querySelector("#solutionNavTitle"),
+        solutionNavList: document.querySelector("#solutionNavList"),
+        toggleNavButton: document.querySelector("#toggleNavButton"),
+        roundSelect: document.querySelector("#roundSelect"),
+        periodTabs: document.querySelector("#periodTabs"),
+        statusChips: document.querySelector("#statusChips"),
+        searchInput: document.querySelector("#searchInput"),
+        questionList: document.querySelector("#questionList"),
+        filteredCount: document.querySelector("#filteredCount"),
+        resetFilters: document.querySelector("#resetFilters"),
+        voterName: document.querySelector("#voterName"),
+        voterInitial: document.querySelector("#voterInitial"),
+        totalCount: document.querySelector("#totalCount"),
+        criticalCount: document.querySelector("#criticalCount"),
+        normalCount: document.querySelector("#normalCount"),
+        noneCount: document.querySelector("#noneCount"),
+        clearVisible: document.querySelector("#clearVisible"),
+        exportJson: document.querySelector("#exportJson"),
+        exportCsv: document.querySelector("#exportCsv"),
+        pdfTitle: document.querySelector("#pdfTitle"),
+        pdfMeta: document.querySelector("#pdfMeta"),
+        pdfStage: document.querySelector("#pdfStage"),
+        pdfEmpty: document.querySelector("#pdfEmpty"),
+        pdfGrid: document.querySelector("#pdfGrid"),
+        singlePageButton: document.querySelector("#singlePageButton"),
+        doublePageButton: document.querySelector("#doublePageButton"),
+        firstPageButton: document.querySelector("#firstPageButton"),
+        prevPageButton: document.querySelector("#prevPageButton"),
+        pdfPageInput: document.querySelector("#pdfPageInput"),
+        pdfPageStatus: document.querySelector("#pdfPageStatus"),
+        nextPageButton: document.querySelector("#nextPageButton"),
+        lastPageButton: document.querySelector("#lastPageButton"),
+        pdfZoomSelect: document.querySelector("#pdfZoomSelect"),
+        highlightToggle: document.querySelector("#highlightToggle"),
+        clearHighlights: document.querySelector("#clearHighlights"),
+        openPdfLink: document.querySelector("#openPdfLink"),
+      };
+
+      init();
+
+      function init() {
+        els.votePageTab.addEventListener("click", () => setAppPage("vote"));
+        els.solutionPageTab.addEventListener("click", () => setAppPage("solutions"));
+        window.addEventListener("pdfjs-ready", () => renderPdfViewer());
+        els.toggleNavButton.addEventListener("click", () => {
+          state.solutionNavCollapsed = !state.solutionNavCollapsed;
+          renderSolutionNav();
+        });
+        els.singlePageButton.addEventListener("click", () => setPdfView("single"));
+        els.doublePageButton.addEventListener("click", () => setPdfView("double"));
+        els.firstPageButton.addEventListener("click", () => movePdfPage("first"));
+        els.prevPageButton.addEventListener("click", () => movePdfPage("prev"));
+        els.nextPageButton.addEventListener("click", () => movePdfPage("next"));
+        els.lastPageButton.addEventListener("click", () => movePdfPage("last"));
+        els.pdfPageInput.addEventListener("change", () => {
+          state.pdfPage = clampPdfPage(Number(els.pdfPageInput.value) || 1);
+          scrollToPdfPage(state.pdfPage);
+          updatePageControls();
+        });
+        els.pdfZoomSelect.addEventListener("change", () => {
+          state.pdfZoom = els.pdfZoomSelect.value;
+          renderPdfViewer({ preserveScrollPage: state.pdfVisiblePage || state.pdfPage });
+        });
+        els.highlightToggle.addEventListener("click", () => {
+          state.highlightMode = !state.highlightMode;
+          renderPdfViewer();
+        });
+        els.clearHighlights.addEventListener("click", () => {
+          if (!state.solutionFile) return;
+          state.highlights[state.solutionFile] = [];
+          saveHighlights();
+          renderPdfViewer();
+        });
+
+        voters.forEach((name) => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          els.voterName.append(option);
+
+          const button = document.createElement("button");
+          button.className = "action";
+          button.type = "button";
+          button.textContent = name;
+          button.addEventListener("click", () => enterAs(name));
+          els.entryNames.append(button);
+        });
+
+        const savedName = localStorage.getItem(nameKey) || "";
+        if (voters.includes(savedName)) {
+          enterAs(savedName);
+        }
+
+        els.voterName.addEventListener("change", () => {
+          enterAs(els.voterName.value);
+        });
+
+        const roundAll = document.createElement("option");
+        roundAll.value = "all";
+        roundAll.textContent = "회차 전체";
+        els.roundSelect.append(roundAll);
+        [...new Set(questions.map((q) => q.round))]
+          .sort((a, b) => b - a)
+          .forEach((round) => {
+            const option = document.createElement("option");
+            option.value = String(round);
+            option.textContent = `${round}회`;
+            els.roundSelect.append(option);
+          });
+        els.roundSelect.value = "all";
+        els.roundSelect.addEventListener("change", () => {
+          state.round = els.roundSelect.value;
+          render();
+        });
+
+        periodOptions.forEach(({ value, label }) => {
+          const button = document.createElement("button");
+          button.className = "seg";
+          button.type = "button";
+          button.dataset.period = String(value);
+          button.textContent = label;
+          button.addEventListener("click", () => {
+            state.period = value === "all" ? "all" : Number(value);
+            render();
+          });
+          els.periodTabs.append(button);
+        });
+
+        statusFilters.forEach(({ value, label, kind }) => {
+          const button = document.createElement("button");
+          button.className = `chip${kind ? " " + kind : ""}`;
+          button.type = "button";
+          button.dataset.filter = value;
+          button.textContent = label;
+          button.addEventListener("click", () => {
+            state.filter = value;
+            render();
+          });
+          els.statusChips.append(button);
+        });
+
+        els.searchInput.addEventListener("input", () => {
+          state.search = els.searchInput.value.trim().toLowerCase();
+          render();
+        });
+        els.resetFilters.addEventListener("click", () => {
+          state.round = "all";
+          state.period = "all";
+          state.filter = "all";
+          state.search = "";
+          els.roundSelect.value = "all";
+          els.searchInput.value = "";
+          render();
+        });
+        els.clearVisible.addEventListener("click", clearVisibleVotes);
+        els.exportJson.addEventListener("click", () => exportVotes("json"));
+        els.exportCsv.addEventListener("click", () => exportVotes("csv"));
+
+        render();
+        renderSolutions();
+        renderAppPage();
+        syncVotes();
+        window.setInterval(syncVotes, 5000);
+      }
+
+      function setAppPage(page) {
+        state.appPage = page;
+        const url = new URL(location.href);
+        if (page === "vote") {
+          url.searchParams.delete("page");
+        } else {
+          url.searchParams.set("page", page);
+        }
+        history.replaceState(null, "", url);
+        renderAppPage();
+      }
+
+      function renderAppPage() {
+        const isSolutions = state.appPage === "solutions";
+        els.votePage.hidden = isSolutions;
+        els.solutionsPage.hidden = !isSolutions;
+        els.entryGate.hidden = isSolutions || Boolean(state.voter);
+        els.votePageTab.classList.toggle("active", !isSolutions);
+        els.solutionPageTab.classList.toggle("active", isSolutions);
+      }
+
+      function loadCachedVotes() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+          return migrateVotes(saved);
+        } catch {
+          return {};
+        }
+      }
+
+      function migrateVotes(saved) {
+        if (!saved || typeof saved !== "object") return {};
+        const savedName = localStorage.getItem(nameKey) || "";
+        const fallbackName = voters.includes(savedName) ? savedName : voters[0];
+        return Object.fromEntries(
+          Object.entries(saved)
+            .map(([id, value]) => {
+              if (typeof value === "string") {
+                return [id, { [fallbackName]: value }];
+              }
+              if (!value || typeof value !== "object") return [id, {}];
+              return [
+                id,
+                Object.fromEntries(
+                  Object.entries(value).filter(([name, vote]) => voters.includes(name) && labels[vote]),
+                ),
+              ];
+            })
+            .filter(([, value]) => Object.keys(value).length),
+        );
+      }
+
+      function saveVotes() {
+        localStorage.setItem(storageKey, JSON.stringify(state.votes));
+      }
+
+      async function syncVotes() {
+        try {
+          const res = await fetch(votesApi, { cache: "no-store" });
+          if (!res.ok) throw new Error(`GET ${res.status}`);
+          const data = await res.json();
+          state.votes = migrateVotes(data.votes || {});
+          state.online = true;
+          saveVotes();
+          render();
+        } catch (error) {
+          state.online = false;
+          console.warn("공유 투표를 불러오지 못했습니다.", error);
+        }
+      }
+
+      async function updateSharedVote(id, value) {
+        const nextVote = state.votes[id]?.[state.voter] === value ? "" : value;
+        applyLocalVote(id, state.voter, nextVote);
+        saveVotes();
+        render();
+
+        try {
+          const res = await fetch(votesApi, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ id, voter: state.voter, vote: nextVote }),
+          });
+          if (!res.ok) throw new Error(`POST ${res.status}`);
+          const data = await res.json();
+          state.votes = migrateVotes(data.votes || {});
+          state.online = true;
+          saveVotes();
+          render();
+        } catch (error) {
+          state.online = false;
+          console.warn("공유 투표 저장에 실패했습니다.", error);
+        }
+      }
+
+      async function clearSharedVisibleVotes() {
+        const ids = visibleQuestions().map((q) => q.id);
+        ids.forEach((id) => applyLocalVote(id, state.voter, ""));
+        saveVotes();
+        render();
+
+        try {
+          const res = await fetch(votesApi, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ action: "clear", voter: state.voter, ids }),
+          });
+          if (!res.ok) throw new Error(`POST ${res.status}`);
+          const data = await res.json();
+          state.votes = migrateVotes(data.votes || {});
+          state.online = true;
+          saveVotes();
+          render();
+        } catch (error) {
+          state.online = false;
+          console.warn("공유 투표 초기화에 실패했습니다.", error);
+        }
+      }
+
+      function applyLocalVote(id, voter, vote) {
+        if (!id || !voter) return;
+        state.votes[id] ||= {};
+        if (vote) {
+          state.votes[id][voter] = vote;
+        } else {
+          delete state.votes[id][voter];
+        }
+        if (!Object.keys(state.votes[id]).length) {
+          delete state.votes[id];
+        }
+      }
+
+      function enterAs(name) {
+        if (!voters.includes(name)) return;
+        state.voter = name;
+        els.voterName.value = name;
+        els.entryGate.hidden = true;
+        localStorage.setItem(nameKey, name);
+        render();
+      }
+
+      function filesForRound(round) {
+        return pdfFiles.filter((file) => file.round === round);
+      }
+
+      function pdfUrl(fileName, page = state.pdfPage) {
+        return `${pdfSourceUrl(fileName)}#page=${Math.max(1, Number(page) || 1)}&view=FitH`;
+      }
+
+      function pdfSourceUrl(fileName) {
+        return pdfBaseUrl
+          ? `${pdfBaseUrl.replace(/\/$/, "")}/${encodeURIComponent(fileName)}`
+          : localPdfHost
+            ? encodeURIComponent(fileName)
+            : `/api/pdf?file=${encodeURIComponent(fileName)}`;
+      }
+
+      function renderSolutions() {
+        const files = filesForRound(state.solutionRound);
+        if (!state.solutionFile && files.length) {
+          state.solutionFile = files[0].name;
+        }
+        renderSolutionNav();
+        renderPdfViewer();
+      }
+
+      function renderSolutionNav() {
+        els.viewerLayout.classList.toggle("nav-collapsed", state.solutionNavCollapsed);
+        els.toggleNavButton.textContent = state.solutionNavCollapsed ? "목록 열기" : "목록 숨기기";
+
+        els.solutionNavList.innerHTML = solutionRounds
+          .slice()
+          .reverse()
+          .map((round) => {
+            const files = filesForRound(round);
+            const expanded = state.solExpandedRound === round;
+            const roundActive = round === state.solutionRound;
+            let sub = "";
+            if (expanded) {
+              sub = files.length
+                ? `<div class="file-sublist">${files
+                    .map(
+                      (file) =>
+                        `<button class="file-button${file.name === state.solutionFile ? " active" : ""}" type="button" data-file="${escapeHtml(file.name)}">${escapeHtml(file.name)}</button>`,
+                    )
+                    .join("")}</div>`
+                : `<div class="file-sublist"><div class="file-empty">등록된 PDF가 없습니다.</div></div>`;
+            }
+            return `<div class="nav-round-group">
+              <button class="round-button${roundActive ? " active" : ""}${expanded ? " expanded" : ""}" type="button" data-round="${round}">
+                <span class="round-caret">▸</span>
+                <span class="round-name">${round}회</span>
+                ${files.length ? `<span class="round-count">${files.length}</span>` : ""}
+              </button>${sub}</div>`;
+          })
+          .join("");
+
+        els.solutionNavList.querySelectorAll(".round-button").forEach((button) => {
+          button.addEventListener("click", () => {
+            const round = Number(button.dataset.round);
+            state.solExpandedRound = state.solExpandedRound === round ? null : round;
+            renderSolutionNav();
+          });
+        });
+
+        els.solutionNavList.querySelectorAll(".file-button").forEach((button) => {
+          button.addEventListener("click", () => {
+            const file = button.dataset.file;
+            state.solutionRound = pdfFiles.find((item) => item.name === file)?.round || state.solutionRound;
+            state.solutionFile = file;
+            state.pdfDoc = null;
+            state.pdfDocFile = "";
+            state.pdfTotalPages = 0;
+            state.pdfPage = 1;
+            renderSolutions();
+          });
+        });
+      }
+
+      function setPdfView(view) {
+        state.pdfView = view;
+        state.pdfPage = clampPdfPage(state.pdfPage);
+        renderPdfViewer({ preserveScrollPage: state.pdfVisiblePage || state.pdfPage });
+      }
+
+      function pdfPageStep() {
+        return state.pdfView === "double" ? 2 : 1;
+      }
+
+      function maxPdfStartPage() {
+        if (!state.pdfTotalPages) return Number.MAX_SAFE_INTEGER;
+        return state.pdfTotalPages;
+      }
+
+      function clampPdfPage(page) {
+        return Math.min(Math.max(1, Number(page) || 1), maxPdfStartPage());
+      }
+
+      function movePdfPage(action) {
+        if (!state.solutionFile) return;
+        const step = pdfPageStep();
+        if (action === "first") state.pdfPage = 1;
+        if (action === "prev") state.pdfPage = clampPdfPage(state.pdfPage - step);
+        if (action === "next") state.pdfPage = clampPdfPage(state.pdfPage + step);
+        if (action === "last") state.pdfPage = maxPdfStartPage();
+        scrollToPdfPage(state.pdfPage);
+        updatePageControls();
+      }
+
+      function updatePageControls() {
+        const hasFile = Boolean(state.solutionFile);
+        const hasPageCount = hasFile && Boolean(state.pdfTotalPages);
+        const maxPage = maxPdfStartPage();
+        const atFirst = !hasPageCount || state.pdfPage <= 1;
+        const atLast = !hasPageCount || state.pdfPage >= maxPage;
+        els.pdfPageInput.disabled = !hasFile;
+        els.firstPageButton.disabled = atFirst;
+        els.prevPageButton.disabled = atFirst;
+        els.nextPageButton.disabled = atLast;
+        els.lastPageButton.disabled = atLast;
+        els.pdfPageInput.max = state.pdfTotalPages ? String(maxPage) : "";
+        els.pdfPageStatus.textContent = state.pdfTotalPages ? `/ ${state.pdfTotalPages}` : "/ -";
+      }
+
+      function renderPdfViewer(options = {}) {
+        const token = ++state.pdfRenderToken;
+        els.singlePageButton.classList.toggle("active", state.pdfView === "single");
+        els.doublePageButton.classList.toggle("active", state.pdfView === "double");
+        els.highlightToggle.classList.toggle("active", state.highlightMode);
+        els.pdfZoomSelect.value = state.pdfZoom;
+        state.pdfPage = clampPdfPage(state.pdfPage);
+        els.pdfPageInput.value = String(state.pdfPage);
+        updatePageControls();
+
+        if (!state.solutionFile) {
+          els.pdfTitle.textContent = "PDF 파일을 선택하세요";
+          els.pdfMeta.textContent = `${state.solutionRound}회에 등록된 PDF가 없습니다.`;
+          els.pdfEmpty.hidden = false;
+          els.pdfGrid.hidden = true;
+          els.openPdfLink.removeAttribute("href");
+          updatePageControls();
+          return;
+        }
+
+        const file = pdfFiles.find((item) => item.name === state.solutionFile);
+        const fileUrl = pdfUrl(state.solutionFile, state.pdfPage);
+        els.pdfTitle.textContent = state.solutionFile;
+        els.pdfMeta.textContent = `${file?.round || state.solutionRound}회 · PDF 로딩 중`;
+        els.openPdfLink.href = fileUrl;
+        els.pdfEmpty.hidden = true;
+        els.pdfGrid.hidden = false;
+        els.pdfGrid.className = `pdf-grid ${state.pdfView === "double" ? "double" : "single"}`;
+        els.pdfGrid.innerHTML = '<div class="pdf-loading">PDF를 불러오는 중입니다.</div>';
+
+        renderPdfPages(token, options);
+      }
+
+      async function renderPdfPages(token, options = {}) {
+        if (!window.pdfjsLib) {
+          els.pdfMeta.textContent = "PDF 렌더러를 불러오는 중입니다.";
+          return;
+        }
+
+        try {
+          if (state.pdfDocFile !== state.solutionFile) {
+            state.pdfDoc = null;
+            state.pdfDocFile = state.solutionFile;
+            state.pdfDoc = await window.pdfjsLib.getDocument({ url: pdfSourceUrl(state.solutionFile) }).promise;
+          }
+          if (token !== state.pdfRenderToken || !state.pdfDoc) return;
+
+          state.pdfTotalPages = state.pdfDoc.numPages;
+          const clampedPage = clampPdfPage(state.pdfPage);
+          if (clampedPage !== state.pdfPage) {
+            state.pdfPage = clampedPage;
+            renderPdfViewer();
+            return;
+          }
+          updatePageControls();
+
+          els.pdfMeta.textContent = `${pdfFiles.find((item) => item.name === state.solutionFile)?.round || state.solutionRound}회 · 전체 ${state.pdfDoc.numPages}쪽 · ${
+            state.pdfView === "double" ? "2페이지 스크롤" : "1페이지 스크롤"
+          }`;
+
+          els.pdfGrid.innerHTML = Array.from({ length: state.pdfDoc.numPages }, (_, index) => {
+            const page = index + 1;
+            return `
+              <div class="pdf-frame-wrap" data-page-number="${page}">
+                <div class="pdf-page-label">p.${page}</div>
+                <div class="pdf-loading">PDF ${page}쪽</div>
+                <canvas class="pdf-canvas" data-page="${page}" hidden></canvas>
+                <div class="highlight-layer${state.highlightMode ? " enabled" : ""}" data-page-number="${page}"></div>
+              </div>
+            `;
+          }).join("");
+
+          renderHighlights();
+          bindHighlightLayers();
+          observeVisiblePdfPages();
+          lazyRenderPdfPages(token);
+          requestAnimationFrame(() => scrollToPdfPage(options.preserveScrollPage || state.pdfPage, "auto"));
+        } catch (error) {
+          state.pdfDoc = null;
+          state.pdfDocFile = "";
+          state.pdfTotalPages = 0;
+          updatePageControls();
+          console.warn("PDF 렌더링 실패", error);
+          els.pdfGrid.querySelectorAll(".pdf-loading").forEach((loading) => {
+            loading.innerHTML = `PDF를 불러오지 못했습니다. <a href="${pdfUrl(state.solutionFile)}" target="_blank" rel="noreferrer">새 창으로 열기</a>`;
+          });
+        }
+      }
+
+      function lazyRenderPdfPages(token) {
+        const targets = [...els.pdfGrid.querySelectorAll(".pdf-frame-wrap")];
+        const renderPage = (wrap) => renderPdfCanvas(Number(wrap.dataset.pageNumber), wrap, token);
+        if (!("IntersectionObserver" in window)) {
+          targets.slice(0, 6).forEach(renderPage);
+          return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            observer.unobserve(entry.target);
+            renderPage(entry.target);
+          });
+        }, { root: els.pdfStage, rootMargin: "700px 0px" });
+        targets.forEach((wrap) => observer.observe(wrap));
+      }
+
+      async function renderPdfCanvas(pageNumber, wrap, token) {
+        if (!state.pdfDoc || wrap.dataset.rendered === "true" || wrap.dataset.rendering === "true") return;
+        wrap.dataset.rendering = "true";
+        const loading = wrap.querySelector(".pdf-loading");
+        const canvas = wrap.querySelector(".pdf-canvas");
+        try {
+          const page = await state.pdfDoc.getPage(pageNumber);
+          if (token !== state.pdfRenderToken) return;
+          const baseViewport = page.getViewport({ scale: 1 });
+          const availableWidth = Math.max(260, wrap.clientWidth - 20);
+          const fitScale = availableWidth / baseViewport.width;
+          const cssScale = state.pdfZoom === "fit" ? fitScale : Number(state.pdfZoom || 1);
+          const ratio = window.devicePixelRatio || 1;
+          const viewport = page.getViewport({ scale: cssScale * ratio });
+          const context = canvas.getContext("2d", { alpha: false });
+
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          canvas.style.width = `${Math.floor(viewport.width / ratio)}px`;
+          canvas.style.height = `${Math.floor(viewport.height / ratio)}px`;
+          await page.render({ canvasContext: context, viewport }).promise;
+          if (token !== state.pdfRenderToken) return;
+          loading.hidden = true;
+          canvas.hidden = false;
+          wrap.dataset.rendered = "true";
+        } catch (error) {
+          loading.textContent = `PDF ${pageNumber}쪽을 불러오지 못했습니다.`;
+          console.warn("PDF 페이지 렌더링 실패", pageNumber, error);
+        } finally {
+          wrap.dataset.rendering = "false";
+        }
+      }
+
+      function observeVisiblePdfPages() {
+        if (state.pdfPageObserver) state.pdfPageObserver.disconnect();
+        const targets = [...els.pdfGrid.querySelectorAll(".pdf-frame-wrap")];
+        if (!targets.length || !("IntersectionObserver" in window)) return;
+        state.pdfPageObserver = new IntersectionObserver((entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          state.pdfVisiblePage = Number(visible.target.dataset.pageNumber) || state.pdfVisiblePage;
+          state.pdfPage = state.pdfVisiblePage;
+          els.pdfPageInput.value = String(state.pdfVisiblePage);
+          updatePageControls();
+        }, { root: els.pdfStage, threshold: [0.25, 0.5, 0.75] });
+        targets.forEach((wrap) => state.pdfPageObserver.observe(wrap));
+      }
+
+      function scrollToPdfPage(page, behavior = "smooth") {
+        const target = els.pdfGrid.querySelector(`.pdf-frame-wrap[data-page-number="${clampPdfPage(page)}"]`);
+        if (!target) return;
+        target.scrollIntoView({ block: "start", inline: "nearest", behavior });
+      }
+
+      function loadHighlights() {
+        try {
+          return JSON.parse(localStorage.getItem(highlightKey) || "{}");
+        } catch {
+          return {};
+        }
+      }
+
+      function saveHighlights() {
+        localStorage.setItem(highlightKey, JSON.stringify(state.highlights));
+      }
+
+      function renderHighlights() {
+        const list = state.highlights[state.solutionFile] || [];
+        els.pdfGrid.querySelectorAll(".highlight-layer").forEach((layer) => {
+          const pageIndex = Number(layer.dataset.pageIndex);
+          const pageNumber = Number(layer.dataset.pageNumber);
+          layer.innerHTML = list
+            .filter((item) => item.view === state.pdfView && (item.pageNumber ? item.pageNumber === pageNumber : item.pageIndex === pageIndex))
+            .map((item) => `<i class="highlight-box" style="left:${item.x}%;top:${item.y}%;width:${item.w}%;height:${item.h}%"></i>`)
+            .join("");
+        });
+      }
+
+      function bindHighlightLayers() {
+        els.pdfGrid.querySelectorAll(".highlight-layer").forEach((layer) => {
+          let start = null;
+          let draft = null;
+
+          layer.addEventListener("pointerdown", (event) => {
+            if (!state.highlightMode || !state.solutionFile) return;
+            const rect = layer.getBoundingClientRect();
+            start = {
+              x: ((event.clientX - rect.left) / rect.width) * 100,
+              y: ((event.clientY - rect.top) / rect.height) * 100,
+            };
+            draft = document.createElement("i");
+            draft.className = "highlight-box";
+            layer.append(draft);
+            layer.setPointerCapture(event.pointerId);
+          });
+
+          layer.addEventListener("pointermove", (event) => {
+            if (!start || !draft) return;
+            const rect = layer.getBoundingClientRect();
+            const current = {
+              x: ((event.clientX - rect.left) / rect.width) * 100,
+              y: ((event.clientY - rect.top) / rect.height) * 100,
+            };
+            const box = normalizeHighlightBox(start, current);
+            applyHighlightStyle(draft, box);
+          });
+
+          layer.addEventListener("pointerup", (event) => {
+            if (!start || !draft) return;
+            const rect = layer.getBoundingClientRect();
+            const current = {
+              x: ((event.clientX - rect.left) / rect.width) * 100,
+              y: ((event.clientY - rect.top) / rect.height) * 100,
+            };
+            const box = normalizeHighlightBox(start, current);
+            draft.remove();
+            start = null;
+            draft = null;
+            if (box.w < 1 || box.h < 1) return;
+            state.highlights[state.solutionFile] ||= [];
+            state.highlights[state.solutionFile].push({
+              ...box,
+              view: state.pdfView,
+              pageIndex: Number(layer.dataset.pageIndex),
+              pageNumber: Number(layer.dataset.pageNumber),
+            });
+            saveHighlights();
+            renderHighlights();
+          });
+        });
+      }
+
+      function normalizeHighlightBox(a, b) {
+        const x = Math.max(0, Math.min(a.x, b.x));
+        const y = Math.max(0, Math.min(a.y, b.y));
+        const w = Math.min(100 - x, Math.abs(a.x - b.x));
+        const h = Math.min(100 - y, Math.abs(a.y - b.y));
+        return { x, y, w, h };
+      }
+
+      function applyHighlightStyle(el, box) {
+        el.style.left = `${box.x}%`;
+        el.style.top = `${box.y}%`;
+        el.style.width = `${box.w}%`;
+        el.style.height = `${box.h}%`;
+      }
+
+      function visibleQuestions() {
+        return questions
+          .filter((q) => {
+            const vote = voteForCurrentVoter(q.id);
+            if (state.round !== "all" && q.round !== Number(state.round)) return false;
+            if (state.period !== "all" && q.period !== state.period) return false;
+            const matchesFilter =
+              state.filter === "all" ||
+              (state.filter === "unvoted" && !vote) ||
+              vote === state.filter;
+            if (!matchesFilter) return false;
+            const searchable = formatQuestionText(q.text).toLowerCase();
+            if (state.search && !searchable.includes(state.search)) return false;
+            return true;
+          })
+          .sort((a, b) => b.round - a.round || a.period - b.period || a.number - b.number);
+      }
+
+      function render() {
+        els.periodTabs.querySelectorAll(".seg").forEach((button) => {
+          button.classList.toggle("active", button.dataset.period === String(state.period));
+        });
+        els.statusChips.querySelectorAll(".chip").forEach((button) => {
+          button.classList.toggle("active", button.dataset.filter === state.filter);
+        });
+        els.roundSelect.value = String(state.round);
+        els.voterInitial.textContent = state.voter ? state.voter.charAt(0) : "·";
+        renderStats();
+        renderQuestions();
+      }
+
+      function renderStats() {
+        const values = Object.values(state.votes).flatMap((byVoter) => Object.values(byVoter || {}));
+        els.totalCount.textContent = questions.length.toLocaleString("ko-KR");
+        els.criticalCount.textContent = values.filter((v) => v === "critical").length;
+        els.normalCount.textContent = values.filter((v) => v === "normal").length;
+        els.noneCount.textContent = values.filter((v) => v === "none").length;
+      }
+
+      function renderQuestions() {
+        const list = visibleQuestions();
+        els.filteredCount.textContent = list.length.toLocaleString("ko-KR");
+        if (!list.length) {
+          els.questionList.innerHTML = `
+            <div class="empty">
+              <span class="emoji">📭</span>
+              <strong>해당하는 문항이 없습니다</strong>
+              <span>필터 조건을 변경하거나 검색어를 수정해 보세요.</span>
+            </div>`;
+          return;
+        }
+
+        const groups = new Map();
+        list.forEach((q) => {
+          if (!groups.has(q.round)) groups.set(q.round, []);
+          groups.get(q.round).push(q);
+        });
+        const rounds = [...groups.keys()].sort((a, b) => b - a);
+
+        const body = rounds
+          .map((round) => {
+            const rows = groups.get(round);
+            const head = `
+              <div class="round-head">
+                <span class="round-head-title">${round}회</span>
+                <span class="round-head-count">${rows.length}문항</span>
+              </div>`;
+            return head + rows.map(questionRow).join("");
+          })
+          .join("");
+
+        els.questionList.innerHTML = `
+          <div class="q-card">
+            <div class="q-thead"><span>회차·교시</span><span>문항</span><span>문제</span><span class="ta-c">내 표시</span></div>
+            ${body}
+          </div>`;
+
+        els.questionList.querySelectorAll(".sv").forEach((button) => {
+          button.addEventListener("click", () => {
+            if (!state.voter) {
+              els.entryGate.hidden = false;
+              return;
+            }
+            updateSharedVote(button.dataset.id, button.dataset.vote);
+          });
+        });
+      }
+
+      function questionRow(q) {
+        const vote = voteForCurrentVoter(q.id);
+        const text = escapeHtml(formatQuestionText(q.text));
+        return `
+          <div class="q-row" data-id="${q.id}">
+            <span class="q-col">${q.period}교시</span>
+            <span class="q-no">${q.number}번</span>
+            <span class="q-title">${text}</span>
+            <div class="q-vote" role="group" aria-label="${q.id} 투표">
+              <div class="seg-vote">
+                <button class="sv crit${vote === "critical" ? " on" : ""}" type="button" data-id="${q.id}" data-vote="critical">매우중요</button>
+                <button class="sv norm${vote === "normal" ? " on" : ""}" type="button" data-id="${q.id}" data-vote="normal">보통</button>
+                <button class="sv none${vote === "none" ? " on" : ""}" type="button" data-id="${q.id}" data-vote="none">필요없음</button>
+              </div>
+              ${voterTags(q.id)}
+            </div>
+          </div>`;
+      }
+
+      function voterTags(id) {
+        const tags = voters
+          .map((name) => {
+            const vote = state.votes[id]?.[name];
+            if (!vote) return "";
+            return `<span class="vtag ${vote}">${escapeHtml(name)}</span>`;
+          })
+          .join("");
+        return tags ? `<div class="q-voters">${tags}</div>` : "";
+      }
+
+      function voteForCurrentVoter(id) {
+        return state.voter ? state.votes[id]?.[state.voter] || "" : "";
+      }
+
+      function clearVisibleVotes() {
+        if (!state.voter) {
+          els.entryGate.hidden = false;
+          return;
+        }
+        clearSharedVisibleVotes();
+      }
+
+      function exportVotes(format) {
+        const voted = questions.flatMap((q) =>
+          Object.entries(state.votes[q.id] || {}).map(([voter, vote]) => ({
+            voter,
+            round: q.round,
+            period: q.period,
+            number: q.number,
+            vote: labels[vote],
+            text: formatQuestionText(q.text),
+            sourcePdf: q.sourcePdf,
+            page: q.page,
+          })),
+        );
+
+        if (format === "json") {
+          download("itpe-votes.json", "application/json", JSON.stringify(voted, null, 2));
+          return;
+        }
+
+        const header = ["voter", "round", "period", "number", "vote", "text", "sourcePdf", "page"];
+        const csv = [header.join(","), ...voted.map((row) => header.map((key) => csvCell(row[key])).join(","))].join("\n");
+        download("itpe-votes.csv", "text/csv;charset=utf-8", "﻿" + csv);
+      }
+
+      function download(filename, type, content) {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function csvCell(value) {
+        return `"${String(value ?? "").replaceAll('"', '""')}"`;
+      }
+
+      function formatQuestionText(value) {
+        return String(value ?? "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+    </script>
+  </body>
 </html>
