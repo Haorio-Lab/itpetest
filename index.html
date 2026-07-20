@@ -1062,6 +1062,11 @@
         text-align: center;
       }
 
+      .pdf-loading[hidden],
+      .pdf-canvas[hidden] {
+        display: none !important;
+      }
+
       .current-page-pointer {
         display: none;
         position: absolute;
@@ -1326,7 +1331,7 @@
                 </div>
                 <div class="viewer-actions">
                   <div class="viewer-group">
-                    <button class="viewer-action" id="toggleNavButton" type="button">목록 숨기기</button>
+                    <button class="viewer-action" id="toggleNavButton" type="button" aria-expanded="true">탭 숨기기</button>
                     <a class="viewer-action" id="openPdfLink" href="#" target="_blank" rel="noreferrer">새 창</a>
                   </div>
                 </div>
@@ -1755,7 +1760,8 @@
 
       function renderSolutionNav() {
         els.viewerLayout.classList.toggle("nav-collapsed", state.solutionNavCollapsed);
-        els.toggleNavButton.textContent = state.solutionNavCollapsed ? "목록 열기" : "목록 숨기기";
+        els.toggleNavButton.textContent = state.solutionNavCollapsed ? "탭 열기" : "탭 숨기기";
+        els.toggleNavButton.setAttribute("aria-expanded", String(!state.solutionNavCollapsed));
 
         els.solutionNavList.innerHTML = solutionRounds
           .slice()
@@ -1905,7 +1911,7 @@
             return `
               <div class="pdf-frame-wrap${page === state.pdfPage ? " current" : ""}" data-page-number="${page}">
                 <div class="current-page-pointer">현재 ${page}p</div>
-                <div class="pdf-loading">불러오는 중입니다.</div>
+                <div class="pdf-loading" aria-hidden="true"></div>
                 <canvas class="pdf-canvas" data-page="${page}" hidden></canvas>
               </div>
             `;
