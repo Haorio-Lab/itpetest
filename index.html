@@ -1008,8 +1008,7 @@
         min-height: 520px;
         max-height: calc(100vh - 300px);
         overflow: auto;
-        background: #ece8e2;
-        scroll-behavior: smooth;
+        background: #f3f1ed;
       }
 
       .pdf-empty {
@@ -1024,39 +1023,33 @@
       }
 
       .pdf-grid {
-        position: relative;
         min-height: 100%;
-        display: grid;
-        align-items: start;
-        gap: 12px;
-        padding: 12px;
-      }
-
-      .pdf-grid.single {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .pdf-grid.double {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        padding: 22px;
       }
 
       .pdf-frame-wrap {
         position: relative;
-        min-width: 0;
-        display: grid;
-        place-items: center;
-        overflow: visible;
-        border: 1px solid rgba(28, 26, 23, 0.14);
-        border-radius: 8px;
-        background: #fff;
-        padding: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 2px 0;
       }
 
       .pdf-canvas {
         display: block;
         max-width: 100%;
         background: #fff;
-        box-shadow: 0 2px 8px rgba(28, 26, 23, 0.16);
+        border-radius: 2px;
+        box-shadow: 0 2px 12px rgba(28, 26, 23, 0.14);
+      }
+
+      .pdf-frame-wrap.current .pdf-canvas {
+        outline: 3px solid var(--accent);
+        outline-offset: 4px;
       }
 
       .pdf-loading {
@@ -1069,49 +1062,37 @@
         text-align: center;
       }
 
-      .pdf-loading[hidden],
-      .pdf-canvas[hidden] {
+      .current-page-pointer {
         display: none;
-      }
-
-      .pdf-page-label {
         position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 3;
-        border-radius: 6px;
-        padding: 3px 8px;
-        background: rgba(28, 26, 23, 0.76);
-        color: #fff;
-        font-size: 11px;
-        font-weight: 700;
-      }
-
-      .highlight-layer {
-        position: absolute;
-        inset: 0;
+        top: 14px;
+        left: var(--page-pointer-left, 14px);
         z-index: 2;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 9px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        box-shadow: 0 6px 18px rgba(50, 93, 204, 0.28);
         pointer-events: none;
       }
 
-      .highlight-layer.enabled {
-        cursor: crosshair;
-        pointer-events: auto;
-      }
-
-      .highlight-box {
+      .current-page-pointer::after {
+        content: "";
         position: absolute;
-        border: 1px solid rgba(255, 190, 0, 0.85);
-        background: rgba(255, 224, 86, 0.36);
+        right: -7px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-left: 7px solid var(--accent);
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
       }
 
-      .viewer-note {
-        padding: 8px 12px;
-        border-top: 1px solid var(--line);
-        color: var(--muted);
-        background: var(--panel-soft);
-        font-size: 12px;
-        line-height: 1.45;
+      .pdf-frame-wrap.current .current-page-pointer {
+        display: inline-flex;
       }
 
       .pdf-mini-toolbar {
@@ -1143,6 +1124,14 @@
       .mini-action:disabled {
         cursor: not-allowed;
         opacity: 0.45;
+      }
+
+      .zoom-label {
+        width: 44px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
       }
 
       .mini-page-input {
@@ -1318,7 +1307,7 @@
         <div class="page-inner solutions-inner">
           <header class="sol-head">
             <h1>기출 풀이집</h1>
-            <p class="subtitle">왼쪽에서 회차를 눌러 PDF 파일을 고르면 오른쪽 뷰어에 열립니다. 하이라이트는 원본 PDF를 수정하지 않는 화면 오버레이입니다.</p>
+            <p class="subtitle">왼쪽에서 회차를 눌러 PDF 파일을 고르면 오른쪽 뷰어에 열립니다.</p>
           </header>
 
           <section class="viewer-layout" id="viewerLayout" aria-label="기출풀이집 PDF 뷰어">
@@ -1338,12 +1327,6 @@
                 <div class="viewer-actions">
                   <div class="viewer-group">
                     <button class="viewer-action" id="toggleNavButton" type="button">목록 숨기기</button>
-                    <button class="viewer-action active" id="singlePageButton" type="button">1페이지</button>
-                    <button class="viewer-action" id="doublePageButton" type="button">2페이지</button>
-                  </div>
-                  <div class="viewer-group">
-                    <button class="viewer-action" id="highlightToggle" type="button">하이라이트</button>
-                    <button class="viewer-action" id="clearHighlights" type="button">하이라이트 삭제</button>
                     <a class="viewer-action" id="openPdfLink" href="#" target="_blank" rel="noreferrer">새 창</a>
                   </div>
                 </div>
@@ -1351,24 +1334,17 @@
 
               <div class="pdf-stage" id="pdfStage">
                 <div class="pdf-empty" id="pdfEmpty">PDF 파일을 선택하세요.</div>
-                <div class="pdf-grid single" id="pdfGrid" hidden></div>
+                <div class="pdf-grid" id="pdfGrid" hidden></div>
               </div>
               <div class="pdf-mini-toolbar" id="pdfMiniToolbar">
-                <button class="mini-action" id="firstPageButton" type="button">처음</button>
                 <button class="mini-action" id="prevPageButton" type="button">이전</button>
                 <input class="mini-page-input" id="pdfPageInput" type="number" min="1" value="1" aria-label="PDF 페이지" />
                 <span class="page-status" id="pdfPageStatus">/ -</span>
                 <button class="mini-action" id="nextPageButton" type="button">다음</button>
-                <button class="mini-action" id="lastPageButton" type="button">마지막</button>
-                <select class="mini-select" id="pdfZoomSelect" aria-label="확대축소">
-                  <option value="fit">맞춤</option>
-                  <option value="1">100%</option>
-                  <option value="1.25">125%</option>
-                  <option value="1.5">150%</option>
-                </select>
-              </div>
-              <div class="viewer-note">
-                하이라이트는 브라우저에 저장되는 오버레이입니다. 원본 PDF는 수정되지 않습니다.
+                <button class="mini-action" id="zoomOutButton" type="button" aria-label="축소">−</button>
+                <span class="zoom-label" id="pdfZoomLabel">맞춤</span>
+                <button class="mini-action" id="zoomInButton" type="button" aria-label="확대">+</button>
+                <button class="mini-action" id="fitZoomButton" type="button">맞춤</button>
               </div>
             </section>
           </section>
@@ -1412,7 +1388,6 @@
         { round: 138, name: "[BigUp]기술사_138회_정보관리_260207_v1.0.pdf" },
         { round: 139, name: "[인포레버] 제139회_정보관리기술사 기출해설집_260522_v1.0.pdf" },
       ];
-      const highlightKey = "itpe-pdf-highlights-v1";
       const labels = {
         critical: "매우중요",
         normal: "보통",
@@ -1445,7 +1420,6 @@
         solutionFile: "",
         solExpandedRound: 139,
         solutionNavCollapsed: false,
-        pdfView: "single",
         pdfPage: 1,
         pdfVisiblePage: 1,
         pdfZoom: "fit",
@@ -1454,8 +1428,6 @@
         pdfDocFile: "",
         pdfRenderToken: 0,
         pdfPageObserver: null,
-        highlightMode: false,
-        highlights: loadHighlights(),
       };
 
       const els = {
@@ -1490,17 +1462,14 @@
         pdfStage: document.querySelector("#pdfStage"),
         pdfEmpty: document.querySelector("#pdfEmpty"),
         pdfGrid: document.querySelector("#pdfGrid"),
-        singlePageButton: document.querySelector("#singlePageButton"),
-        doublePageButton: document.querySelector("#doublePageButton"),
-        firstPageButton: document.querySelector("#firstPageButton"),
         prevPageButton: document.querySelector("#prevPageButton"),
         pdfPageInput: document.querySelector("#pdfPageInput"),
         pdfPageStatus: document.querySelector("#pdfPageStatus"),
         nextPageButton: document.querySelector("#nextPageButton"),
-        lastPageButton: document.querySelector("#lastPageButton"),
-        pdfZoomSelect: document.querySelector("#pdfZoomSelect"),
-        highlightToggle: document.querySelector("#highlightToggle"),
-        clearHighlights: document.querySelector("#clearHighlights"),
+        zoomOutButton: document.querySelector("#zoomOutButton"),
+        pdfZoomLabel: document.querySelector("#pdfZoomLabel"),
+        zoomInButton: document.querySelector("#zoomInButton"),
+        fitZoomButton: document.querySelector("#fitZoomButton"),
         openPdfLink: document.querySelector("#openPdfLink"),
       };
 
@@ -1514,31 +1483,18 @@
           state.solutionNavCollapsed = !state.solutionNavCollapsed;
           renderSolutionNav();
         });
-        els.singlePageButton.addEventListener("click", () => setPdfView("single"));
-        els.doublePageButton.addEventListener("click", () => setPdfView("double"));
-        els.firstPageButton.addEventListener("click", () => movePdfPage("first"));
         els.prevPageButton.addEventListener("click", () => movePdfPage("prev"));
         els.nextPageButton.addEventListener("click", () => movePdfPage("next"));
-        els.lastPageButton.addEventListener("click", () => movePdfPage("last"));
         els.pdfPageInput.addEventListener("change", () => {
-          state.pdfPage = clampPdfPage(Number(els.pdfPageInput.value) || 1);
+          const requestedPage = clampPdfPage(Number(els.pdfPageInput.value) || 1);
+          state.pdfPage = requestedPage;
           scrollToPdfPage(state.pdfPage);
           updatePageControls();
         });
-        els.pdfZoomSelect.addEventListener("change", () => {
-          state.pdfZoom = els.pdfZoomSelect.value;
-          renderPdfViewer({ preserveScrollPage: state.pdfVisiblePage || state.pdfPage });
-        });
-        els.highlightToggle.addEventListener("click", () => {
-          state.highlightMode = !state.highlightMode;
-          renderPdfViewer();
-        });
-        els.clearHighlights.addEventListener("click", () => {
-          if (!state.solutionFile) return;
-          state.highlights[state.solutionFile] = [];
-          saveHighlights();
-          renderPdfViewer();
-        });
+        els.zoomOutButton.addEventListener("click", () => setPdfZoom(state.pdfZoom === "fit" ? 0.8 : Math.max(0.3, Number((Number(state.pdfZoom) - 0.15).toFixed(2)))));
+        els.zoomInButton.addEventListener("click", () => setPdfZoom(state.pdfZoom === "fit" ? 1.15 : Math.min(4, Number((Number(state.pdfZoom) + 0.15).toFixed(2)))));
+        els.fitZoomButton.addEventListener("click", () => setPdfZoom("fit"));
+        window.addEventListener("keydown", handlePdfKeydown);
 
         voters.forEach((name) => {
           const option = document.createElement("option");
@@ -1845,19 +1801,10 @@
             state.pdfDocFile = "";
             state.pdfTotalPages = 0;
             state.pdfPage = 1;
+            state.pdfVisiblePage = 1;
             renderSolutions();
           });
         });
-      }
-
-      function setPdfView(view) {
-        state.pdfView = view;
-        state.pdfPage = clampPdfPage(state.pdfPage);
-        renderPdfViewer({ preserveScrollPage: state.pdfVisiblePage || state.pdfPage });
-      }
-
-      function pdfPageStep() {
-        return state.pdfView === "double" ? 2 : 1;
       }
 
       function maxPdfStartPage() {
@@ -1871,11 +1818,8 @@
 
       function movePdfPage(action) {
         if (!state.solutionFile) return;
-        const step = pdfPageStep();
-        if (action === "first") state.pdfPage = 1;
-        if (action === "prev") state.pdfPage = clampPdfPage(state.pdfPage - step);
-        if (action === "next") state.pdfPage = clampPdfPage(state.pdfPage + step);
-        if (action === "last") state.pdfPage = maxPdfStartPage();
+        if (action === "prev") state.pdfPage = clampPdfPage(state.pdfPage - 1);
+        if (action === "next") state.pdfPage = clampPdfPage(state.pdfPage + 1);
         scrollToPdfPage(state.pdfPage);
         updatePageControls();
       }
@@ -1887,20 +1831,24 @@
         const atFirst = !hasPageCount || state.pdfPage <= 1;
         const atLast = !hasPageCount || state.pdfPage >= maxPage;
         els.pdfPageInput.disabled = !hasFile;
-        els.firstPageButton.disabled = atFirst;
         els.prevPageButton.disabled = atFirst;
         els.nextPageButton.disabled = atLast;
-        els.lastPageButton.disabled = atLast;
         els.pdfPageInput.max = state.pdfTotalPages ? String(maxPage) : "";
         els.pdfPageStatus.textContent = state.pdfTotalPages ? `/ ${state.pdfTotalPages}` : "/ -";
+        updatePdfZoomLabel();
+      }
+
+      function setPdfZoom(nextZoom) {
+        state.pdfZoom = nextZoom;
+        renderPdfViewer({ preserveScrollPage: state.pdfVisiblePage || state.pdfPage });
+      }
+
+      function updatePdfZoomLabel() {
+        els.pdfZoomLabel.textContent = state.pdfZoom === "fit" ? "맞춤" : `${Math.round(Number(state.pdfZoom) * 100)}%`;
       }
 
       function renderPdfViewer(options = {}) {
         const token = ++state.pdfRenderToken;
-        els.singlePageButton.classList.toggle("active", state.pdfView === "single");
-        els.doublePageButton.classList.toggle("active", state.pdfView === "double");
-        els.highlightToggle.classList.toggle("active", state.highlightMode);
-        els.pdfZoomSelect.value = state.pdfZoom;
         state.pdfPage = clampPdfPage(state.pdfPage);
         els.pdfPageInput.value = String(state.pdfPage);
         updatePageControls();
@@ -1922,7 +1870,6 @@
         els.openPdfLink.href = fileUrl;
         els.pdfEmpty.hidden = true;
         els.pdfGrid.hidden = false;
-        els.pdfGrid.className = `pdf-grid ${state.pdfView === "double" ? "double" : "single"}`;
         els.pdfGrid.innerHTML = '<div class="pdf-loading">PDF를 불러오는 중입니다.</div>';
 
         renderPdfPages(token, options);
@@ -1951,24 +1898,19 @@
           }
           updatePageControls();
 
-          els.pdfMeta.textContent = `${pdfFiles.find((item) => item.name === state.solutionFile)?.round || state.solutionRound}회 · 전체 ${state.pdfDoc.numPages}쪽 · ${
-            state.pdfView === "double" ? "2페이지 스크롤" : "1페이지 스크롤"
-          }`;
+          const round = pdfFiles.find((item) => item.name === state.solutionFile)?.round || state.solutionRound;
+          els.pdfMeta.textContent = `${round}회 · 전체 ${state.pdfDoc.numPages}쪽`;
 
-          els.pdfGrid.innerHTML = Array.from({ length: state.pdfDoc.numPages }, (_, index) => {
-            const page = index + 1;
+          els.pdfGrid.innerHTML = Array.from({ length: state.pdfDoc.numPages }, (_, index) => index + 1).map((page) => {
             return `
-              <div class="pdf-frame-wrap" data-page-number="${page}">
-                <div class="pdf-page-label">p.${page}</div>
-                <div class="pdf-loading">PDF ${page}쪽</div>
+              <div class="pdf-frame-wrap${page === state.pdfPage ? " current" : ""}" data-page-number="${page}">
+                <div class="current-page-pointer">현재 ${page}p</div>
+                <div class="pdf-loading">불러오는 중입니다.</div>
                 <canvas class="pdf-canvas" data-page="${page}" hidden></canvas>
-                <div class="highlight-layer${state.highlightMode ? " enabled" : ""}" data-page-number="${page}"></div>
               </div>
             `;
           }).join("");
 
-          renderHighlights();
-          bindHighlightLayers();
           observeVisiblePdfPages();
           lazyRenderPdfPages(token);
           requestAnimationFrame(() => scrollToPdfPage(options.preserveScrollPage || state.pdfPage, "auto"));
@@ -2010,17 +1952,21 @@
           const page = await state.pdfDoc.getPage(pageNumber);
           if (token !== state.pdfRenderToken) return;
           const baseViewport = page.getViewport({ scale: 1 });
-          const availableWidth = Math.max(260, wrap.clientWidth - 20);
+          const availableWidth = Math.max(260, els.pdfStage.clientWidth - 44);
           const fitScale = availableWidth / baseViewport.width;
           const cssScale = state.pdfZoom === "fit" ? fitScale : Number(state.pdfZoom || 1);
-          const ratio = window.devicePixelRatio || 1;
+          const ratio = Math.min(window.devicePixelRatio || 1, 2);
           const viewport = page.getViewport({ scale: cssScale * ratio });
           const context = canvas.getContext("2d", { alpha: false });
+          const cssWidth = Math.floor(viewport.width / ratio);
+          const cssHeight = Math.floor(viewport.height / ratio);
 
           canvas.width = Math.floor(viewport.width);
           canvas.height = Math.floor(viewport.height);
-          canvas.style.width = `${Math.floor(viewport.width / ratio)}px`;
-          canvas.style.height = `${Math.floor(viewport.height / ratio)}px`;
+          canvas.style.width = `${cssWidth}px`;
+          canvas.style.height = `${cssHeight}px`;
+          wrap.style.height = `${cssHeight + 4}px`;
+          wrap.style.setProperty("--page-pointer-left", `max(14px, calc(50% - ${Math.round(cssWidth / 2)}px - 78px))`);
           await page.render({ canvasContext: context, viewport }).promise;
           if (token !== state.pdfRenderToken) return;
           loading.hidden = true;
@@ -2046,108 +1992,44 @@
           state.pdfVisiblePage = Number(visible.target.dataset.pageNumber) || state.pdfVisiblePage;
           state.pdfPage = state.pdfVisiblePage;
           els.pdfPageInput.value = String(state.pdfVisiblePage);
+          updateCurrentPdfPageMarker();
           updatePageControls();
         }, { root: els.pdfStage, threshold: [0.25, 0.5, 0.75] });
         targets.forEach((wrap) => state.pdfPageObserver.observe(wrap));
       }
 
-      function scrollToPdfPage(page, behavior = "smooth") {
+      function scrollToPdfPage(page, behavior = "auto") {
         const target = els.pdfGrid.querySelector(`.pdf-frame-wrap[data-page-number="${clampPdfPage(page)}"]`);
         if (!target) return;
-        target.scrollIntoView({ block: "start", inline: "nearest", behavior });
+        els.pdfStage.scrollTo({ top: Math.max(0, target.offsetTop - 10), behavior });
+        updateCurrentPdfPageMarker(clampPdfPage(page));
       }
 
-      function loadHighlights() {
-        try {
-          return JSON.parse(localStorage.getItem(highlightKey) || "{}");
-        } catch {
-          return {};
-        }
+      function updatePdfMeta() {
+        if (!state.solutionFile || !state.pdfTotalPages) return;
+        const round = pdfFiles.find((item) => item.name === state.solutionFile)?.round || state.solutionRound;
+        els.pdfMeta.textContent = `${round}회 · 전체 ${state.pdfTotalPages}쪽`;
       }
 
-      function saveHighlights() {
-        localStorage.setItem(highlightKey, JSON.stringify(state.highlights));
-      }
-
-      function renderHighlights() {
-        const list = state.highlights[state.solutionFile] || [];
-        els.pdfGrid.querySelectorAll(".highlight-layer").forEach((layer) => {
-          const pageIndex = Number(layer.dataset.pageIndex);
-          const pageNumber = Number(layer.dataset.pageNumber);
-          layer.innerHTML = list
-            .filter((item) => item.view === state.pdfView && (item.pageNumber ? item.pageNumber === pageNumber : item.pageIndex === pageIndex))
-            .map((item) => `<i class="highlight-box" style="left:${item.x}%;top:${item.y}%;width:${item.w}%;height:${item.h}%"></i>`)
-            .join("");
+      function updateCurrentPdfPageMarker(page = state.pdfPage) {
+        els.pdfGrid.querySelectorAll(".pdf-frame-wrap").forEach((wrap) => {
+          wrap.classList.toggle("current", Number(wrap.dataset.pageNumber) === Number(page));
         });
       }
 
-      function bindHighlightLayers() {
-        els.pdfGrid.querySelectorAll(".highlight-layer").forEach((layer) => {
-          let start = null;
-          let draft = null;
-
-          layer.addEventListener("pointerdown", (event) => {
-            if (!state.highlightMode || !state.solutionFile) return;
-            const rect = layer.getBoundingClientRect();
-            start = {
-              x: ((event.clientX - rect.left) / rect.width) * 100,
-              y: ((event.clientY - rect.top) / rect.height) * 100,
-            };
-            draft = document.createElement("i");
-            draft.className = "highlight-box";
-            layer.append(draft);
-            layer.setPointerCapture(event.pointerId);
-          });
-
-          layer.addEventListener("pointermove", (event) => {
-            if (!start || !draft) return;
-            const rect = layer.getBoundingClientRect();
-            const current = {
-              x: ((event.clientX - rect.left) / rect.width) * 100,
-              y: ((event.clientY - rect.top) / rect.height) * 100,
-            };
-            const box = normalizeHighlightBox(start, current);
-            applyHighlightStyle(draft, box);
-          });
-
-          layer.addEventListener("pointerup", (event) => {
-            if (!start || !draft) return;
-            const rect = layer.getBoundingClientRect();
-            const current = {
-              x: ((event.clientX - rect.left) / rect.width) * 100,
-              y: ((event.clientY - rect.top) / rect.height) * 100,
-            };
-            const box = normalizeHighlightBox(start, current);
-            draft.remove();
-            start = null;
-            draft = null;
-            if (box.w < 1 || box.h < 1) return;
-            state.highlights[state.solutionFile] ||= [];
-            state.highlights[state.solutionFile].push({
-              ...box,
-              view: state.pdfView,
-              pageIndex: Number(layer.dataset.pageIndex),
-              pageNumber: Number(layer.dataset.pageNumber),
-            });
-            saveHighlights();
-            renderHighlights();
-          });
-        });
-      }
-
-      function normalizeHighlightBox(a, b) {
-        const x = Math.max(0, Math.min(a.x, b.x));
-        const y = Math.max(0, Math.min(a.y, b.y));
-        const w = Math.min(100 - x, Math.abs(a.x - b.x));
-        const h = Math.min(100 - y, Math.abs(a.y - b.y));
-        return { x, y, w, h };
-      }
-
-      function applyHighlightStyle(el, box) {
-        el.style.left = `${box.x}%`;
-        el.style.top = `${box.y}%`;
-        el.style.width = `${box.w}%`;
-        el.style.height = `${box.h}%`;
+      function handlePdfKeydown(event) {
+        if (state.appPage !== "solutions" || !state.solutionFile) return;
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        const target = event.target;
+        if (target && (["INPUT", "SELECT", "TEXTAREA", "BUTTON", "A"].includes(target.tagName) || target.isContentEditable)) return;
+        const actions = {
+          ArrowLeft: "prev",
+          ArrowRight: "next",
+        };
+        const action = actions[event.key];
+        if (!action) return;
+        event.preventDefault();
+        movePdfPage(action);
       }
 
       function visibleQuestions() {
